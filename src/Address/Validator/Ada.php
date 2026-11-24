@@ -3,6 +3,7 @@
 namespace Exads\WalletAddressValidator\Address\Validator;
 
 use CBOR\Decoder;
+use CBOR\Normalizable;
 use CBOR\OtherObject;
 use CBOR\Tag;
 use CBOR\StringStream;
@@ -28,8 +29,9 @@ class Ada extends AbstractBase58
 
         try {
             $stream = new StringStream(hex2bin($decodedHex));
-            $decoder = new Decoder(new Tag\TagObjectManager(), new OtherObject\OtherObjectManager());
-            $addrData = $decoder->decode($stream)->getNormalizedData();
+            $decoder = new Decoder(new Tag\TagManager(), new OtherObject\OtherObjectManager());
+            $object = $decoder->decode($stream);
+            $addrData = $object instanceof Normalizable ? $object->normalize() : null;
 
             if (!is_array($addrData) || !isset($addrData[1])) {
                 return false;
